@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>DeepLogic V9 – Tài Xỉu</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+    input[type=number], button { width: 100%; padding: 10px; margin: 5px 0; }
+    .result { margin: 10px 0; font-weight: bold; }
+    footer { margin-top: 40px; font-size: 0.9em; color: #555; text-align: center; }
+  </style>
+</head>
+<body>
+  <h2>DeepLogic V9 – Dự đoán Tài Xỉu</h2>
+
+  <label>Nhập MD5 / mã hoặc tham số:</label>
+  <input type="text" id="inputCode" placeholder="Nhập ở đây">
+
+  <button onclick="runPrediction()">Dự đoán</button>
+
+  <div class="result" id="probabilities"></div>
+  <div class="result" id="suggestions"></div>
+
+  <hr>
+
+  <label>Nhập vốn (VNĐ):</label>
+  <input type="number" id="bankroll" placeholder="Ví dụ: 1000000">
+
+  <button onclick="updateMoney()">Gợi ý vào tiền theo %</button>
+
+  <div class="result" id="moneySuggestion"></div>
+
+  <footer>Cre: Trần Quốc Trịnh — Trùm Kéo Thuê Go88</footer>
+
+  <script>
+    function runPrediction() {
+      const code = document.getElementById('inputCode').value.trim();
+      if (!code) return alert('Bạn cần nhập mã để dự đoán.');
+
+      // 👇 Demo logic: MD5 hoặc chuỗi đầu vào -> xác suất
+      let hash = 0;
+      for (let c of code) hash = (hash + c.charCodeAt(0) * 31) % 1000;
+      const pTai = (hash % 100) / 100;
+      const pXiu = 1 - pTai;
+
+      document.getElementById('probabilities').innerText =
+        `Xác suất: Tài ${(pTai*100).toFixed(1)}% | Xỉu ${(pXiu*100).toFixed(1)}%`;
+
+      document.getElementById('suggestions').innerText =
+        pTai > pXiu
+          ? `👉 Hướng chọn: Tài`
+          : `👉 Hướng chọn: Xỉu`;
+    }
+
+    function updateMoney() {
+      const v = parseFloat(document.getElementById('bankroll').value);
+      const probText = document.getElementById('probabilities').innerText;
+      if (!v || !probText) return alert('Bạn cần dự đoán trước và nhập vốn.');
+      const matches = probText.match(/Tài ([0-9.]+)%.*Xỉu ([0-9.]+)%/);
+      if (!matches) return;
+
+      const pTai = parseFloat(matches[1]) / 100;
+      const pXiu = parseFloat(matches[2]) / 100;
+
+      const betTai = Math.round(v * pTai);
+      const betXiu = Math.round(v * pXiu);
+
+      document.getElementById('moneySuggestion').innerText =
+        `Gợi ý đặt: Tài ${betTai.toLocaleString()} ₫ | Xỉu ${betXiu.toLocaleString()} ₫`;
+    }
+  </script>
+</body>
+</html>
